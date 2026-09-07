@@ -1,6 +1,6 @@
 variable "project_name" {
   type        = string
-  description = "Short project identifier used in resource naming, e.g. 'projecta'."
+  description = "Project identifier used in resource naming, e.g. 'projecta'."
 }
 
 variable "environment" {
@@ -22,5 +22,5 @@ variable "location" {
 variable "tags" {
   type        = map(string)
   default     = {}
-  description = "Optional tags to apply to the Resource Group."
+  description = "Optional tags to apply to the Resource Group"
 }
