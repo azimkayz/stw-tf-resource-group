@@ -41,10 +41,10 @@ Example: `rg-stw-prod-southafricanorth`
 
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `project_name` | `string` | Yes | – | Project identifier used in resource naming, e.g. `'projecta'`. |
-| `environment` | `string` | Yes | – | Environment name used in resource naming, e.g. `'dev'`, `'test'`, `'prod'`. |
-| `location` | `string` | No | `"southafricanorth"` | Azure region to deploy into. Validated to reject every value except `southafricanorth`. |
-| `tags` | `map(string)` | No | `{}` | Optional tags to apply to the Resource Group. |
+| `project_name` | `string` | Yes | – | Short project name used to build the resource group name. |
+| `environment` | `string` | Yes | – | Environment name, e.g. `dev`, `test`, `prod`. |
+| `location` | `string` | No | `"southafricanorth"` | Azure region. Validated to reject every value except `southafricanorth`. |
+| `tags` | `map(string)` | No | `{}` | Common tags applied to the resource group. |
 
 ## Outputs
 
