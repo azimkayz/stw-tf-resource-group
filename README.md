@@ -1,52 +1,66 @@
-# stw-tf-resource-group
+# terraform-azurerm-resource-group
 
-Single-responsibility Terraform module that creates an Azure Resource Group.
+Creates a single Azure Resource Group. Everything else in this platform is deployed into the resource group this module produces — nothing else about the environment is in scope here.
 
 ## Scope
 
-Creates only the Resource Group. Every other module in this project takes
-`resource_group_name` as an input, sourced from this module's output.
+**Creates**
+- One `azurerm_resource_group`
 
-## Naming — worked example
-
-project_name = "projecta", environment = "prod" →
-`rg-projecta-prod-southafricanorth`
+**Does not create**
+- Any networking, compute, storage, or monitoring resources — every other module in this platform
+- Role assignments or resource locks on the resource group
 
 ## Usage
 
 ```hcl
 module "resource_group" {
-  source = "github.com/azimkayz/stw-tf-resource-group?ref=v1.0.0"
+  source = "github.com/azimkayz/terraform-azurerm-resource-group?ref=v1.0.0"
 
-  project_name = "projecta"
+  project_name = "stw"
   environment  = "prod"
+  location     = "southafricanorth"
+
+  tags = {
+    owner = "cloud-team"
+  }
 }
 ```
 
-## Requirements
+A minimal, runnable example is in [`examples/basic`](./examples/basic).
 
-| Name      | Version  |
-|-----------|----------|
-| terraform | >= 1.5.0 |
-| azurerm   | ~> 5.4.0   |
+## Naming
+
+Pattern: `rg-<project_name>-<environment>-<location>`
+
+Example: `rg-stw-prod-southafricanorth`
+
+`location` is validated to accept only `southafricanorth` — no other Azure region is permitted on this platform, so a `terraform plan` with any other region value fails at the variable validation stage rather than producing an unexpected deployment.
 
 ## Inputs
 
-| Name         | Type        | Default          | Required | Description                       |
-|--------------|-------------|------------------|----------|-------------------------------------|
-| project_name | string      | n/a              | yes      | Short project identifier for naming |
-| environment  | string      | n/a              | yes      | Environment name for naming         |
-| location     | string      | southafricanorth | no       | Azure region                        |
-| tags         | map(string) | {}               | no       | Additional tags                     |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `project_name` | `string` | Yes | – | Project identifier used in resource naming, e.g. `'projecta'`. |
+| `environment` | `string` | Yes | – | Environment name used in resource naming, e.g. `'dev'`, `'test'`, `'prod'`. |
+| `location` | `string` | No | `"southafricanorth"` | Azure region to deploy into. Validated to reject every value except `southafricanorth`. |
+| `tags` | `map(string)` | No | `{}` | Optional tags to apply to the Resource Group. |
 
 ## Outputs
 
-| Name                 | Description                                     |
-|----------------------|----------------------------------------------------|
-| resource_group_name  | Generated name — consumed by every other module     |
-| resource_group_id    | Resource ID of the Resource Group                   |
-| location             | Deployed region                                     |
+| Name | Description | Consumed by |
+|---|---|---|
+| `resource_group_name` | Name of the created resource group. | Every other module in this platform — passed in as `resource_group_name`. |
+| `resource_group_id` | Resource ID of the resource group. | Not currently consumed by another module; available for role assignments or policy scoping. |
+| `location` | Location of the resource group. | Not currently consumed by another module; available for callers that want to avoid re-declaring the region. |
+
+## Requirements
+
+| Name | Version |
+|---|---|
+| Terraform | `>= 1.5.0` |
+| azurerm provider | `~> 3.90` |
 
 ## Versioning
 
-Tagged `v1.0.0`. Consumers should pin to a tag, not a branch.
+Only tagged releases are supported for consumption — always pin `?ref=vX.Y.Z` in the `source` argument. `main` is not a supported consumption target and may change without notice.
